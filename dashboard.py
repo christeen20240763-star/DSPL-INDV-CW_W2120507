@@ -7,6 +7,18 @@ import plotly.express as px
 
 df = pd.read_excel("/Users/delphina/Downloads/YEAR 02/DSPL/DSPL 2/DSPL CW 2/cleaned_what_a_waste_data.xlsx")
 
+st.markdown("""
+    <style>
+    .block-container {
+        padding-left: 2rem;
+        padding-right: 2rem;
+        max-width: 100%;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
+col1, col2, col3, col4 = st.columns(4)
+
 # SIDEBAR 
 st.sidebar.title("Global Waste Dashboard")
 st.sidebar.markdown("---")  
@@ -44,35 +56,58 @@ st.markdown("**Exploring global waste generation, income levels, regional patter
 st.markdown("<br>", unsafe_allow_html=True)
 st.markdown("---") 
 
-# KPI cards 
+
+st.markdown("<br>", unsafe_allow_html=True)
+
+def kpi_card(title, value, subtitle, subtitle_color="limegreen"):
+    st.markdown(f"""
+        <div style="padding:15px 20px; margin:5px;">
+            <p style="color:white; 
+                      font-size:15px; 
+                      font-weight:900; 
+                      margin:0;
+                      letter-spacing:0.5px;">{title}</p>
+            <h2 style="color:white; 
+                       margin:8px 0; 
+                       font-size:28px;">{value}</h2>
+            <div style="margin-top:10px;">
+                <span style="background-color:darkgreen; 
+                             color:{subtitle_color}; 
+                             padding:6px 12px; 
+                             border-radius:15px; 
+                             font-size:13px;
+                             white-space:nowrap;">
+                    {subtitle}
+                </span>
+            </div>
+        </div>
+    """, unsafe_allow_html=True)
+
 col1, col2, col3, col4 = st.columns(4)
 
 with col1:
-    avg_waste = df['msw_kg_per_capita_per_day'].mean()
-    st.markdown("**Average Waste (kg/day)**")
-    st.markdown(f"### {avg_waste:.2f}")
-    st.markdown("kg per capita per day")
+    kpi_card("Average Waste (kg/day)",
+             f"{df['msw_kg_per_capita_per_day'].mean():.2f}",
+             "kg per capita per day")
 
 with col2:
     highest_country = df.loc[df['msw_kg_per_capita_per_day'].idxmax(), 'country_name']
-    highest_val = df['msw_kg_per_capita_per_day'].max()
-    st.markdown("**Highest Waste Country**")
-    st.markdown(f"### {highest_country}")
-    st.markdown(f"🔺 {highest_val:.2f} kg/day")
+    kpi_card("Highest Waste Country",
+             highest_country,
+             f"🔺 {df['msw_kg_per_capita_per_day'].max():.2f} kg/day")
 
 with col3:
     lowest_country = df.loc[df['msw_kg_per_capita_per_day'].idxmin(), 'country_name']
-    lowest_val = df['msw_kg_per_capita_per_day'].min()
-    st.markdown("**Lowest Waste Country**")
-    st.markdown(f"### {lowest_country}")
-    st.markdown(f"🔻 {lowest_val:.2f} kg/day")
+    kpi_card("Lowest Waste Country",
+             lowest_country,
+             f"🔻 {df['msw_kg_per_capita_per_day'].min():.2f} kg/day",
+             subtitle_color="red") 
 
 with col4:
     total_waste = df['msw_tonnes_per_year'].sum()
-    st.markdown("**Total Waste Generated**")
-    st.markdown(f"#### {total_waste:,.0f}")
-    st.markdown("tonnes per year")
-
+    kpi_card("Total Waste Generated",
+             f"{total_waste:,.0f}",
+             "tonnes per year")
 
 # Income chart
 income_avg = df.groupby('income_group')['msw_kg_per_capita_per_day'].mean().reset_index()
