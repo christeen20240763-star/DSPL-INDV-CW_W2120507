@@ -56,6 +56,7 @@ st.markdown("**Exploring global waste generation, income levels, regional patter
 st.markdown("<br>", unsafe_allow_html=True)
 st.markdown("---") 
 
+#KPI Cards
 
 st.markdown("<br>", unsafe_allow_html=True)
 
@@ -81,8 +82,10 @@ col1, col2, col3, col4 = st.columns(4)
 
 with col1:
     kpi_card("Average Waste (kg/day)",
-             f"{df['msw_kg_per_capita_per_day'].mean():.2f}",
-             "kg per capita per day")
+             f"{df['msw_kg_per_capita_per_day'].mean():.2f} kg/day",
+             "🔺 Higher in high-income regions",
+             pill=True,
+             subtitle_color="limegreen")
 
 with col2:
     highest_country = df.loc[df['msw_kg_per_capita_per_day'].idxmax(), 'country_name']
@@ -103,15 +106,7 @@ with col4:
     kpi_card("Total Waste Generated",
              f"{total_waste:,.0f}",
              "tonnes per year")
-
-# Income chart
-income_avg = df.groupby('income_group')['msw_kg_per_capita_per_day'].mean().reset_index()
-fig = px.pie(income_avg, values='msw_kg_per_capita_per_day',
-             names='income_group',
-             hole=0.5,
-             title='Waste by Income Group')
-st.plotly_chart(fig)
-
+    
 # Region chart
 region_avg = df.groupby('region')['msw_kg_per_capita_per_day'].mean().reset_index()
 fig = px.bar(region_avg, x='msw_kg_per_capita_per_day', y='region',
@@ -119,7 +114,39 @@ fig = px.bar(region_avg, x='msw_kg_per_capita_per_day', y='region',
              title='Waste per Capita by Region',
              labels={'msw_kg_per_capita_per_day': 'Average Waste (kg/capita/day)',
                      'region': 'Region'})
+text_auto=True
 st.plotly_chart(fig, use_container_width=True)
+
+# Income chart
+income_avg = df.groupby('income_group')['msw_kg_per_capita_per_day'].mean().reset_index()
+fig = px.pie(income_avg, values='msw_kg_per_capita_per_day',
+             names='income_group',
+             hole=0.5,
+             title='Waste Distribution by Income Level (% contribution)')
+st.plotly_chart(fig)
+
+
+
+#bubble chart
+fig = px.scatter(df,
+                x='population',
+                y='msw_tonnes_per_year',
+                size='msw_tonnes_per_year',
+                color='region',
+                hover_name='country_name',
+                hover_data={'population': True,
+                            'msw_tonnes_per_year': True,
+                            'region': False},
+                log_x=True,
+                log_y=True,
+                size_max=60,
+                title='Population vs Waste Generation (bubble size = waste amount)',
+                labels={'population': 'Population',
+                        'msw_tonnes_per_year': 'Total Waste (tonnes)',
+                        'region': 'Region'})
+
+st.plotly_chart(fig, use_container_width=True)
+
 
 # Top 10 countries
 top10 = df.nlargest(10, 'msw_tonnes_per_year')[['country_name', 'msw_tonnes_per_year']].sort_values('msw_tonnes_per_year')
@@ -128,6 +155,8 @@ fig = px.bar(top10,
              x='msw_tonnes_per_year',
              y='country_name',
              orientation='h',
+             text_auto=True,
+    
              title='Top 10 Waste Generating Countries',
              labels={'msw_tonnes_per_year': 'Total Waste (tonnes/year)',
                      'country_name': 'Country'},
@@ -137,6 +166,26 @@ fig = px.bar(top10,
 
 fig.update_traces(texttemplate='%{text:.2s}', textposition='outside')
 fig.update_layout(height=500, showlegend=False, coloraxis_showscale=False)
+
+st.plotly_chart(fig, use_container_width=True)
+
+#MSW Tonnes per Year by Each Year (Bar Chart)
+
+yearly = df.groupby('year_reported')['msw_tonnes_per_year'].sum().reset_index()
+
+fig = px.bar(yearly, 
+             x='year_reported', 
+             y='msw_tonnes_per_year',
+             title='Total Waste Generated Each Year',
+             labels={'year_reported': 'Year', 
+                     'msw_tonnes_per_year': 'Total Waste (tonnes)'},
+             color='msw_tonnes_per_year',
+             color_continuous_scale='Reds')
+fig.update_xaxes(
+    tickmode='array',
+    tickvals=yearly['year_reported'].tolist(),
+    ticktext=[str(int(y)) for y in yearly['year_reported'].tolist()]
+)
 
 st.plotly_chart(fig, use_container_width=True)
 
@@ -183,7 +232,6 @@ map_metric = st.selectbox(
     options=[
         "Total waste generated (t/year)",
         "Waste per capita (kg/capita/day)",
-        "Collection coverage (%)"
     ]
 )
 
@@ -191,7 +239,7 @@ map_metric = st.selectbox(
 map_column = {
     "Total waste generated (t/year)": "msw_tonnes_per_year",
     "Waste per capita (kg/capita/day)": "msw_kg_per_capita_per_day",
-    "Collection coverage (%)": "collection_coverage"
+   
 }[map_metric]
 
 map_df = df[["country_name", map_column]].dropna()
@@ -204,7 +252,8 @@ fig_map = px.choropleth(
     hover_name="country_name",
     title=f"Global Map of {map_metric}",
     
-    color_continuous_scale="Plasma"
+    color_continuous_scale="plasma",
+    labels={map_column: map_metric}
 )
 
 fig_map.update_layout(
@@ -212,84 +261,6 @@ fig_map.update_layout(
 )
 
 st.plotly_chart(fig_map, use_container_width=True)
-
-
-
-#MSW Tonnes per Year by Each Year (Bar Chart)
-
-yearly = df.groupby('year_reported')['msw_tonnes_per_year'].sum().reset_index()
-
-fig = px.bar(yearly, 
-             x='year_reported', 
-             y='msw_tonnes_per_year',
-             title='Total Waste Generated Each Year',
-             labels={'year_reported': 'Year', 
-                     'msw_tonnes_per_year': 'Total Waste (tonnes)'},
-             color='msw_tonnes_per_year',
-             color_continuous_scale='Reds')
-fig.update_xaxes(
-    tickmode='array',
-    tickvals=yearly['year_reported'].tolist(),
-    ticktext=[str(int(y)) for y in yearly['year_reported'].tolist()]
-)
-
-st.plotly_chart(fig, use_container_width=True)
-
-#line chart waste per capita over time by region
-yearly = df.groupby('year_reported')['msw_tonnes_per_year'].sum().reset_index()
-
-fig = px.line(yearly,
-              x='year_reported',
-              y='msw_tonnes_per_year',
-              title='Trend of Waste Generation Over Years',
-              markers=True,
-              labels={'year_reported': 'Year',
-                      'msw_tonnes_per_year': 'Total Waste (tonnes)'})
-
-fig.update_xaxes(
-    tickmode='array',
-    tickvals=yearly['year_reported'].tolist(),
-    ticktext=[str(int(y)) for y in yearly['year_reported'].tolist()])
-
-fig.update_layout(height=500)
-
-st.plotly_chart(fig, use_container_width=True)
-
-#bubble chart
-fig = px.scatter(df,
-                 x='population',
-                 y='msw_tonnes_per_year',
-                 size='msw_tonnes_per_year',
-                 color='region',
-                 hover_name='country_name',
-                 log_x=True,
-                 log_y=True,
-                 size_max=60,
-                 title='Population vs Waste Generation (bubble size = waste amount)',
-                 labels={'population': 'Population (log scale)',
-                         'msw_tonnes_per_year': 'Total Waste (tonnes, log scale)',
-                         'region': 'Region'})
-
-fig.update_layout(height=500)
-
-st.plotly_chart(fig, use_container_width=True)
-
-#line chart msw tonnes per year 2 most recent years 
-recent_years = sorted(df['year_reported'].unique())[-2:]
-
-df_recent = df[df['year_reported'].isin(recent_years)]
-region_total = df_recent.groupby(['year_reported', 'region'])['msw_tonnes_per_year'].sum().reset_index()
-
-fig = px.line(region_total,
-              x='year_reported',
-              y='msw_tonnes_per_year',
-              color='region',
-              markers=True,
-              title='Total Waste Generated by Region (Last 2 Years)',
-              labels={'year_reported': 'Year',
-                      'msw_tonnes_per_year': 'Total Waste (tonnes)',
-                      'region': 'Region'})
-st.plotly_chart(fig, use_container_width=True)
 
 #preview
 with st.expander("Data Preview"):
