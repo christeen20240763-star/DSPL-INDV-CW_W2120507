@@ -8,7 +8,7 @@ import plotly.express as px
 df = pd.read_excel("/Users/delphina/Downloads/YEAR 02/DSPL/DSPL 2/DSPL CW 2/cleaned_what_a_waste_data.xlsx")
 
 # SIDEBAR 
-st.sidebar.title("🌍 Global Waste Dashboard")
+st.sidebar.title("Global Waste Dashboard")
 st.sidebar.markdown("---")  
 
 st.sidebar.header("Filters")
@@ -72,6 +72,7 @@ with col4:
     st.markdown("**Total Waste Generated**")
     st.markdown(f"#### {total_waste:,.0f}")
     st.markdown("tonnes per year")
+
 
 # Income chart
 income_avg = df.groupby('income_group')['msw_kg_per_capita_per_day'].mean().reset_index()
@@ -145,8 +146,6 @@ st.plotly_chart(fig, use_container_width=True)
 
 #world map
 import plotly.express as px
-
-st.subheader("🌍 Global Waste Map")
 
 # Dropdown 
 map_metric = st.selectbox(
