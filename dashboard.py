@@ -7,9 +7,9 @@ import plotly.express as px
 
 df = pd.read_excel("/Users/delphina/Downloads/YEAR 02/DSPL/DSPL 2/DSPL CW 2/cleaned_what_a_waste_data.xlsx")
 
-# ---- SIDEBAR ----
+# SIDEBAR 
 st.sidebar.title("🌍 Global Waste Dashboard")
-st.sidebar.markdown("---")  # adds a divider line
+st.sidebar.markdown("---")  
 
 st.sidebar.header("Filters")
 
@@ -39,14 +39,12 @@ df = df[df['region'].isin(region) &
 
 st.title("Global Waste Dashboard")
 
+st.markdown("**Exploring global waste generation, income levels, regional patterns, and sustainability gaps.**")
 
+st.markdown("<br>", unsafe_allow_html=True)
+st.markdown("---") 
 
-st.markdown("""
-### Exploring global waste generation, income levels, regional patterns, and sustainability gaps.
-""")
-
-#KPI cards
-
+# KPI cards 
 col1, col2, col3, col4 = st.columns(4)
 
 with col1:
@@ -93,29 +91,57 @@ fig = px.bar(region_avg, x='msw_kg_per_capita_per_day', y='region',
 st.plotly_chart(fig, use_container_width=True)
 
 # Top 10 countries
-st.subheader("Top 10 Waste Generating Countries")
+top10 = df.nlargest(10, 'msw_tonnes_per_year')[['country_name', 'msw_tonnes_per_year']].sort_values('msw_tonnes_per_year')
 
-top10 = df.nlargest(10, "msw_tonnes_per_year")
+fig = px.bar(top10,
+             x='msw_tonnes_per_year',
+             y='country_name',
+             orientation='h',
+             title='Top 10 Waste Generating Countries',
+             labels={'msw_tonnes_per_year': 'Total Waste (tonnes/year)',
+                     'country_name': 'Country'},
+             color='msw_tonnes_per_year',
+             color_continuous_scale='reds',
+             text='msw_tonnes_per_year')
 
-fig, ax = plt.subplots(figsize=(10, 6))
-ax.barh(top10["country_name"], top10["msw_tonnes_per_year"])
-ax.set_xlabel("Total Waste (tonnes/year)")
-ax.set_ylabel("Country")
-st.pyplot(fig)
+fig.update_traces(texttemplate='%{text:.2s}', textposition='outside')
+fig.update_layout(height=500, showlegend=False, coloraxis_showscale=False)
+
+st.plotly_chart(fig, use_container_width=True)
 
 # Waste composition
-st.subheader("Waste Composition")
+yearly_comp = df.groupby('year_reported')[
+    ['composition_food%_weight_msw',
+     'composition_paper_cardboard%_weight_msw',
+     'composition_plastic%_weight_msw']
+].mean().reset_index()
 
-labels = ["Food", "Paper", "Plastic"]
-values = [
-    df["composition_food%_weight_msw"].mean(),
-    df["composition_paper_cardboard%_weight_msw"].mean(),
-    df["composition_plastic%_weight_msw"].mean()
-]
+fig = px.bar(yearly_comp,
+             x='year_reported',
+             y=['composition_food%_weight_msw',
+                'composition_paper_cardboard%_weight_msw',
+                'composition_plastic%_weight_msw'],
+             title='Waste Composition by Year',
+             labels={'year_reported': 'Year',
+                     'value': 'Proportion',
+                     'variable': 'Waste Type'},
+             barmode='stack',
+             color_discrete_map={
+                 'composition_food%_weight_msw': 'steelblue',
+                 'composition_paper_cardboard%_weight_msw': 'coral',
+                 'composition_plastic%_weight_msw': 'seagreen'
+             })
+fig.update_xaxes(
+    tickmode='array',
+    tickvals=yearly_comp['year_reported'].tolist(),
+    ticktext=[str(int(y)) for y in yearly_comp['year_reported'].tolist()],
+    tickangle=45,  
+    tickfont=dict(size=14)) 
 
-fig, ax = plt.subplots(figsize=(6, 6))
-ax.pie(values, labels=labels, autopct="%1.1f%%")
-st.pyplot(fig)
+fig.update_layout(height=500,legend_title='Waste Type') 
+
+                  
+st.plotly_chart(fig, use_container_width=True)
 
 #world map
 import plotly.express as px
@@ -139,10 +165,8 @@ map_column = {
     "Collection coverage (%)": "collection_coverage"
 }[map_metric]
 
-# Prepare data
 map_df = df[["country_name", map_column]].dropna()
 
-# Create choropleth map
 fig_map = px.choropleth(
     map_df,
     locations="country_name",
@@ -151,50 +175,79 @@ fig_map = px.choropleth(
     hover_name="country_name",
     title=f"Global Map of {map_metric}",
     
-    # 🌱 nicer color scale
-    color_continuous_scale="YlGn"
+    color_continuous_scale="Plasma"
 )
 
-# Clean layout
 fig_map.update_layout(
     margin=dict(l=0, r=0, t=50, b=0)
 )
 
-# Show in Streamlit
 st.plotly_chart(fig_map, use_container_width=True)
 
-#tree map
 
-fig = px.treemap(df, path=['region', 'country_name'],
-                 values='msw_tonnes_per_year',
-                 title='Waste Generation by Region and Country')
-st.plotly_chart(fig)
 
-#MSW Tonnes per Year – by Each Year (Bar Chart)
+#MSW Tonnes per Year by Each Year (Bar Chart)
+
 yearly = df.groupby('year_reported')['msw_tonnes_per_year'].sum().reset_index()
 
-fig = px.bar(yearly, x='year_reported', y='msw_tonnes_per_year',
+fig = px.bar(yearly, 
+             x='year_reported', 
+             y='msw_tonnes_per_year',
              title='Total Waste Generated Each Year',
-             labels={'year_reported': 'Year', 'msw_tonnes_per_year': 'Total Waste (tonnes)'},
+             labels={'year_reported': 'Year', 
+                     'msw_tonnes_per_year': 'Total Waste (tonnes)'},
              color='msw_tonnes_per_year',
              color_continuous_scale='Reds')
-st.plotly_chart(fig)
+fig.update_xaxes(
+    tickmode='array',
+    tickvals=yearly['year_reported'].tolist(),
+    ticktext=[str(int(y)) for y in yearly['year_reported'].tolist()]
+)
+
+st.plotly_chart(fig, use_container_width=True)
+
+#line chart waste per capita over time by region
+yearly = df.groupby('year_reported')['msw_tonnes_per_year'].sum().reset_index()
+
+fig = px.line(yearly,
+              x='year_reported',
+              y='msw_tonnes_per_year',
+              title='Trend of Waste Generation Over Years',
+              markers=True,
+              labels={'year_reported': 'Year',
+                      'msw_tonnes_per_year': 'Total Waste (tonnes)'})
+
+fig.update_xaxes(
+    tickmode='array',
+    tickvals=yearly['year_reported'].tolist(),
+    ticktext=[str(int(y)) for y in yearly['year_reported'].tolist()])
+
+fig.update_layout(height=500)
+
+st.plotly_chart(fig, use_container_width=True)
 
 #bubble chart
-fig = px.scatter(df, x='population', y='msw_tonnes_per_year',
+fig = px.scatter(df,
+                 x='population',
+                 y='msw_tonnes_per_year',
                  size='msw_tonnes_per_year',
-                 color='region', hover_name='country_name',
-                 log_x=True, log_y=True,
+                 color='region',
+                 hover_name='country_name',
+                 log_x=True,
+                 log_y=True,
+                 size_max=60,
                  title='Population vs Waste Generation (bubble size = waste amount)',
                  labels={'population': 'Population (log scale)',
-                         'msw_tonnes_per_year': 'Total Waste (tonnes, log scale)'})
-st.plotly_chart(fig)
+                         'msw_tonnes_per_year': 'Total Waste (tonnes, log scale)',
+                         'region': 'Region'})
 
-#line chart
-# Get the 2 most recent years in your filtered data
+fig.update_layout(height=500)
+
+st.plotly_chart(fig, use_container_width=True)
+
+#line chart msw tonnes per year 2 most recent years 
 recent_years = sorted(df['year_reported'].unique())[-2:]
 
-# Filter for only those 2 years
 df_recent = df[df['year_reported'].isin(recent_years)]
 region_total = df_recent.groupby(['year_reported', 'region'])['msw_tonnes_per_year'].sum().reset_index()
 
