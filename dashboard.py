@@ -59,30 +59,24 @@ st.markdown("---")
 
 st.markdown("<br>", unsafe_allow_html=True)
 
-def kpi_card(title, value, subtitle, subtitle_color="limegreen"):
+def kpi_card(title, value, subtitle, pill=False, subtitle_color="limegreen"):
+    subtitle_html = (
+        f'<span style="background:darkgreen;color:{subtitle_color};padding:6px 12px;border-radius:15px;font-size:13px;">{subtitle}</span>'
+        if pill else
+        f'<span style="color:#aaa;font-size:13px;">{subtitle}</span>'
+    )
     st.markdown(f"""
-        <div style="padding:15px 20px; margin:5px;">
-            <p style="color:white; 
-                      font-size:15px; 
-                      font-weight:900; 
-                      margin:0;
-                      letter-spacing:0.5px;">{title}</p>
-            <h2 style="color:white; 
-                       margin:8px 0; 
-                       font-size:28px;">{value}</h2>
-            <div style="margin-top:10px;">
-                <span style="background-color:darkgreen; 
-                             color:{subtitle_color}; 
-                             padding:6px 12px; 
-                             border-radius:15px; 
-                             font-size:13px;
-                             white-space:nowrap;">
-                    {subtitle}
-                </span>
+        <div style="padding:15px 20px;margin:5px;">
+            <p style="color:white;font-size:15px;font-weight:900;margin:0;">{title}</p>
+            <h2 style="color:white;margin:8px 0;font-size:22px;min-height:80px;
+                       white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+                       display:flex;align-items:flex-start;">{value}</h2>
+            <div style="height:32px;display:flex;align-items:center;">
+                {subtitle_html}
             </div>
         </div>
     """, unsafe_allow_html=True)
-
+    
 col1, col2, col3, col4 = st.columns(4)
 
 with col1:
@@ -94,14 +88,15 @@ with col2:
     highest_country = df.loc[df['msw_kg_per_capita_per_day'].idxmax(), 'country_name']
     kpi_card("Highest Waste Country",
              highest_country,
-             f"🔺 {df['msw_kg_per_capita_per_day'].max():.2f} kg/day")
+             f"🔺 {df['msw_kg_per_capita_per_day'].max():.2f} kg/day",
+             pill=True)
 
 with col3:
     lowest_country = df.loc[df['msw_kg_per_capita_per_day'].idxmin(), 'country_name']
     kpi_card("Lowest Waste Country",
              lowest_country,
              f"🔻 {df['msw_kg_per_capita_per_day'].min():.2f} kg/day",
-             subtitle_color="red") 
+             pill=True, subtitle_color="red")
 
 with col4:
     total_waste = df['msw_tonnes_per_year'].sum()
