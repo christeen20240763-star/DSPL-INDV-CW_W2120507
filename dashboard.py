@@ -125,6 +125,24 @@ fig = px.pie(income_avg, values='msw_kg_per_capita_per_day',
              title='Waste Distribution by Income Level (% contribution)')
 st.plotly_chart(fig)
 
+#boxplot
+fig = px.box(df, 
+             x='income_group', 
+             y='msw_kg_per_capita_per_day',
+             color='income_group',
+             title='Waste per Capita by Income Group',
+             labels={'income_group': 'Income Group',
+                     'msw_kg_per_capita_per_day': 'Waste (kg/capita/day)'},
+             category_orders={'income_group': [
+                 'low-income country',
+                 'lower-middle-income country', 
+                 'upper-middle-income country',
+                 'high-income country']})
+
+fig.update_layout(height=500, showlegend=False)
+fig.update_traces(hoverinfo='none', hovertemplate=None)
+st.plotly_chart(fig, use_container_width=True)
+
 
 
 #bubble chart
@@ -161,7 +179,7 @@ fig = px.bar(top10,
              labels={'msw_tonnes_per_year': 'Total Waste (tonnes/year)',
                      'country_name': 'Country'},
              color='msw_tonnes_per_year',
-             color_continuous_scale='reds',
+             color_continuous_scale='YlOrBr',
              text='msw_tonnes_per_year')
 
 fig.update_traces(texttemplate='%{text:.2s}', textposition='outside')
@@ -196,35 +214,35 @@ yearly_comp = df.groupby('year_reported')[
      'composition_plastic%_weight_msw']
 ].mean().reset_index()
 
+# Rename columns
+yearly_comp.columns = ['year_reported', 'Food', 'Paper', 'Plastic']
+
 fig = px.bar(yearly_comp,
              x='year_reported',
-             y=['composition_food%_weight_msw',
-                'composition_paper_cardboard%_weight_msw',
-                'composition_plastic%_weight_msw'],
+             y=['Food', 'Paper', 'Plastic'],
              title='Waste Composition by Year',
              labels={'year_reported': 'Year',
                      'value': 'Proportion',
                      'variable': 'Waste Type'},
              barmode='stack',
              color_discrete_map={
-                 'composition_food%_weight_msw': 'steelblue',
-                 'composition_paper_cardboard%_weight_msw': 'coral',
-                 'composition_plastic%_weight_msw': 'seagreen'
+                 'Food': 'steelblue',
+                 'Paper': 'coral',
+                 'Plastic': 'seagreen'
              })
+
 fig.update_xaxes(
     tickmode='array',
     tickvals=yearly_comp['year_reported'].tolist(),
     ticktext=[str(int(y)) for y in yearly_comp['year_reported'].tolist()],
-    tickangle=45,  
-    tickfont=dict(size=14)) 
+    tickangle=45,
+    tickfont=dict(size=14))
 
-fig.update_layout(height=500,legend_title='Waste Type') 
+fig.update_layout(height=500, legend_title='Waste Type')
 
-                  
 st.plotly_chart(fig, use_container_width=True)
 
 #world map
-import plotly.express as px
 
 # Dropdown 
 map_metric = st.selectbox(
