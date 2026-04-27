@@ -20,6 +20,7 @@ st.markdown("""
 col1, col2, col3, col4 = st.columns(4)
 
 # SIDEBAR 
+
 st.markdown("""
     <style>
     [data-testid="stMultiSelect"] span {
@@ -49,23 +50,19 @@ year = st.sidebar.multiselect(
     f"Select Year  ({len(st.session_state.get('year', all_years))} of {len(all_years)} selected)",
     options=all_years,
     default=all_years,
-    key='year'
-)
-
+    key='year')
 
 region = st.sidebar.multiselect(
     f"Select Region  ({len(st.session_state.get('region', all_regions))} of {len(all_regions)} selected)",
     options=all_regions,
     default=all_regions,
-    key='region'
-)
+    key='region')
 
 income = st.sidebar.multiselect(
     f"Select Income Group  ({len(st.session_state.get('income', all_incomes))} of {len(all_incomes)} selected)",
     options=all_incomes,
     default=all_incomes,
-    key='income'
-)
+    key='income')
 
 
 # Filter dataframe
@@ -83,21 +80,19 @@ st.markdown("---")
 
 #KPI Cards
 
-st.markdown("<br>", unsafe_allow_html=True)
-
-def kpi_card(title, value, subtitle, pill=False, subtitle_color="limegreen"):
+def kpi_card(title, value, subtitle, pill=False, subtitle_color="yellow"):
     subtitle_html = (
-        f'<span style="background:darkgreen;color:{subtitle_color};padding:6px 12px;border-radius:15px;font-size:13px;">{subtitle}</span>'
+        f'<span style="background:#7a6500;color:{subtitle_color};padding:5px 12px;'
+        f'border-radius:15px;font-size:12px;">{subtitle}</span>'
         if pill else
-        f'<span style="color:#aaa;font-size:13px;">{subtitle}</span>'
-    )
+        f'<span style="color:#888;font-size:12px;">{subtitle}</span>')
     st.markdown(f"""
-        <div style="padding:15px 20px;margin:5px;">
-            <p style="color:white;font-size:15px;font-weight:900;margin:0;">{title}</p>
-            <h2 style="color:white;margin:8px 0;font-size:22px;min-height:80px;
-                       white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-                       display:flex;align-items:flex-start;">{value}</h2>
-            <div style="height:32px;display:flex;align-items:center;">
+        <div style="border:1px solid #7a6510;border-radius:10px;overflow:hidden;margin:4px;">
+            <div style="background:#1a1500;padding:10px 14px;border-bottom:1px solid #7a6510;">
+                <p style="color:#ffd700;font-size:12px;margin:0;">{title}</p>
+            </div>
+            <div style="background:#2a2000;padding:14px 16px;">
+                <h2 style="color:#fff5b0;margin:0 0 8px 0;font-size:24px;">{value}</h2>
                 {subtitle_html}
             </div>
         </div>
@@ -106,29 +101,29 @@ def kpi_card(title, value, subtitle, pill=False, subtitle_color="limegreen"):
 col1, col2, col3, col4 = st.columns(4)
 
 with col1:
-    kpi_card("Average Waste (kg/day)",
+    kpi_card("🔍 Average Waste (kg/day)",
              f"{df['msw_kg_per_capita_per_day'].mean():.2f} kg/day",
              "🔺 Higher in high-income regions",
-             pill=True,
-             subtitle_color="limegreen")
+             pill=True,)
+            
 
 with col2:
     highest_country = df.loc[df['msw_kg_per_capita_per_day'].idxmax(), 'country_name']
-    kpi_card("Highest Waste Country",
+    kpi_card("⚠️Highest Waste Country",
              highest_country,
              f"🔺 {df['msw_kg_per_capita_per_day'].max():.2f} kg/day",
              pill=True)
 
 with col3:
     lowest_country = df.loc[df['msw_kg_per_capita_per_day'].idxmin(), 'country_name']
-    kpi_card("Lowest Waste Country",
+    kpi_card("♻️Lowest Waste Country",
              lowest_country,
              f"🔻 {df['msw_kg_per_capita_per_day'].min():.2f} kg/day",
-             pill=True, subtitle_color="red")
+             pill=True)
 
 with col4:
     total_waste = df['msw_tonnes_per_year'].sum()
-    kpi_card("Total Waste Generated",
+    kpi_card("🔍 Total Waste Generated",
              f"{total_waste:,.0f}",
              "tonnes per year")
     
@@ -137,9 +132,10 @@ region_avg = df.groupby('region')['msw_kg_per_capita_per_day'].mean().reset_inde
 fig = px.bar(region_avg, x='msw_kg_per_capita_per_day', y='region',
              orientation='h', color='region',
              title='Waste per Capita by Region',
-             labels={'msw_kg_per_capita_per_day': 'Average Waste (kg/capita/day)',
-                     'region': 'Region'})
+             color_discrete_sequence=['peru', 'goldenrod', 'darkorange', 'orange', 'saddlebrown', 'yellow', 'gold'],
+             labels={'msw_kg_per_capita_per_day': 'Average Waste (kg/capita/day)', 'region': 'Region'})
 text_auto=True
+fig.update_layout(legend_itemclick=False, legend_itemdoubleclick=False)
 st.plotly_chart(fig, use_container_width=True)
 
 # Income chart
@@ -147,17 +143,20 @@ income_avg = df.groupby('income_group')['msw_kg_per_capita_per_day'].mean().rese
 fig = px.pie(income_avg, values='msw_kg_per_capita_per_day',
              names='income_group',
              hole=0.5,
-             title='Waste Distribution by Income Level (% contribution)')
+             title='Waste Distribution by Income Level (% contribution)',
+             color_discrete_sequence=['saddlebrown', 'goldenrod', 'gold', 'palegoldenrod'])
+fig.update_layout(legend_itemclick=False, legend_itemdoubleclick=False)
 st.plotly_chart(fig)
 
 #boxplot
-fig = px.box(df, 
+fig = px.box(df,
              x='income_group', 
              y='msw_kg_per_capita_per_day',
              color='income_group',
              title='Waste per Capita by Income Group',
              labels={'income_group': 'Income Group',
                      'msw_kg_per_capita_per_day': 'Waste (kg/capita/day)'},
+             color_discrete_sequence=['peru', 'saddlebrown', 'goldenrod', 'yellow'],
              category_orders={'income_group': [
                  'low-income country',
                  'lower-middle-income country', 
@@ -167,8 +166,6 @@ fig = px.box(df,
 fig.update_layout(height=500, showlegend=False)
 fig.update_traces(hoverinfo='none', hovertemplate=None)
 st.plotly_chart(fig, use_container_width=True)
-
-
 
 #bubble chart
 fig = px.scatter(df,
@@ -186,10 +183,11 @@ fig = px.scatter(df,
                 title='Population vs Waste Generation (bubble size = waste amount)',
                 labels={'population': 'Population',
                         'msw_tonnes_per_year': 'Total Waste (tonnes)',
-                        'region': 'Region'})
+                        'region': 'Region'},
+                color_discrete_sequence=['orangered','darkorange','khaki','chocolate','gold','yellow','palegoldenrod'])
 
+fig.update_layout(legend_itemclick=False, legend_itemdoubleclick=False)
 st.plotly_chart(fig, use_container_width=True)
-
 
 # Top 10 countries
 top10 = df.nlargest(10, 'msw_tonnes_per_year')[['country_name', 'msw_tonnes_per_year']].sort_values('msw_tonnes_per_year')
@@ -209,7 +207,6 @@ fig = px.bar(top10,
 
 fig.update_traces(texttemplate='%{text:.2s}', textposition='outside')
 fig.update_layout(height=500, showlegend=False, coloraxis_showscale=False)
-
 st.plotly_chart(fig, use_container_width=True)
 
 #MSW Tonnes per Year by Each Year (Bar Chart)
@@ -223,14 +220,14 @@ fig = px.bar(yearly,
              labels={'year_reported': 'Year', 
                      'msw_tonnes_per_year': 'Total Waste (tonnes)'},
              color='msw_tonnes_per_year',
-             color_continuous_scale='Reds')
+             color_continuous_scale='YlOrBr',)
 fig.update_xaxes(
     tickmode='array',
     tickvals=yearly['year_reported'].tolist(),
-    ticktext=[str(int(y)) for y in yearly['year_reported'].tolist()]
-)
+    ticktext=[str(int(y)) for y in yearly['year_reported'].tolist()])
 
 st.plotly_chart(fig, use_container_width=True)
+
 
 # Waste composition
 yearly_comp = df.groupby('year_reported')[
@@ -251,10 +248,9 @@ fig = px.bar(yearly_comp,
                      'variable': 'Waste Type'},
              barmode='stack',
              color_discrete_map={
-                 'Food': 'steelblue',
-                 'Paper': 'coral',
-                 'Plastic': 'seagreen'
-             })
+    'Food': 'gold',
+    'Paper': 'goldenrod',
+    'Plastic': 'saddlebrown'})
 
 fig.update_xaxes(
     tickmode='array',
@@ -263,9 +259,14 @@ fig.update_xaxes(
     tickangle=45,
     tickfont=dict(size=14))
 
-fig.update_layout(height=500, legend_title='Waste Type')
+fig.update_layout(
+    height=500, 
+    legend_title='Waste Type',
+    legend_itemclick=False,
+    legend_itemdoubleclick=False)
 
 st.plotly_chart(fig, use_container_width=True)
+
 
 #world map
 
@@ -274,16 +275,12 @@ map_metric = st.selectbox(
     "Select metric to display on the map",
     options=[
         "Total waste generated (t/year)",
-        "Waste per capita (kg/capita/day)",
-    ]
-)
+        "Waste per capita (kg/capita/day)", ])
 
 # Map selection 
 map_column = {
     "Total waste generated (t/year)": "msw_tonnes_per_year",
-    "Waste per capita (kg/capita/day)": "msw_kg_per_capita_per_day",
-   
-}[map_metric]
+    "Waste per capita (kg/capita/day)": "msw_kg_per_capita_per_day",}[map_metric]
 
 map_df = df[["country_name", map_column]].dropna()
 
@@ -295,7 +292,7 @@ fig_map = px.choropleth(
     hover_name="country_name",
     title=f"Global Map of {map_metric}",
     
-    color_continuous_scale="plasma",
+    color_continuous_scale="YlOrBr",
     labels={map_column: map_metric}
 )
 
