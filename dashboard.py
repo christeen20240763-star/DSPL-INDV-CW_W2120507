@@ -185,7 +185,7 @@ fig = px.scatter(df,
                 labels={'population': 'Population',
                         'msw_tonnes_per_year': 'Total Waste (tonnes)',
                         'region': 'Region'},
-                color_discrete_sequence=['goldenrod', 'darkorange', 'orangered', 'chocolate', 'darkgoldenrod', 'peru', 'sienna'])
+                 color_discrete_sequence=['gold', 'darkorange', 'orangered', 'saddlebrown', 'goldenrod', 'chocolate', 'peru'])
 
 fig.update_layout(legend_itemclick=False, legend_itemdoubleclick=False)
 st.plotly_chart(fig, use_container_width=True)
