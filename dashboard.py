@@ -12,17 +12,13 @@ st.markdown("""
     .block-container {
         padding-left: 2rem;
         padding-right: 2rem;
+        padding-top: 3rem;
         max-width: 100%;
     }
-    </style>
-""", unsafe_allow_html=True)
-
-col1, col2, col3, col4 = st.columns(4)
-
-# SIDEBAR 
-
-st.markdown("""
-    <style>
+    h1 {
+        margin-top: 0 !important;
+        padding-top: 0 !important;
+    }
     [data-testid="stMultiSelect"] span {
         font-size: 11px !important;
         padding: 2px 6px !important;
@@ -30,8 +26,11 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
+
+
+# SIDEBAR 
+
 st.sidebar.title("Global Waste Dashboard")
-st.sidebar.markdown("---")  
 
 st.sidebar.header("Filters")
 
@@ -75,7 +74,6 @@ st.title("Global Waste Dashboard")
 
 st.markdown("**Exploring global waste generation, income levels, regional patterns, and sustainability gaps.**")
 
-st.markdown("<br>", unsafe_allow_html=True)
 st.markdown("---") 
 
 #KPI Cards
