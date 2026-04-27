@@ -20,28 +20,53 @@ st.markdown("""
 col1, col2, col3, col4 = st.columns(4)
 
 # SIDEBAR 
+st.markdown("""
+    <style>
+    [data-testid="stMultiSelect"] span {
+        font-size: 11px !important;
+        padding: 2px 6px !important;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
 st.sidebar.title("Global Waste Dashboard")
 st.sidebar.markdown("---")  
 
 st.sidebar.header("Filters")
 
+# Reset button
+all_years = sorted(df['year_reported'].unique())
+all_regions = sorted(df['region'].unique())
+all_incomes = sorted(df['income_group'].unique())
+
+if st.sidebar.button("↺ Reset Filters"):
+    st.session_state['year'] = all_years
+    st.session_state['region'] = all_regions
+    st.session_state['income'] = all_incomes
+
+
 year = st.sidebar.multiselect(
-    "Select Year",
-    options=sorted(df['year_reported'].unique()),
-    default=sorted(df['year_reported'].unique())
+    f"Select Year  ({len(st.session_state.get('year', all_years))} of {len(all_years)} selected)",
+    options=all_years,
+    default=all_years,
+    key='year'
 )
 
+
 region = st.sidebar.multiselect(
-    "Select Region",
-    options=df['region'].unique(),
-    default=df['region'].unique()
+    f"Select Region  ({len(st.session_state.get('region', all_regions))} of {len(all_regions)} selected)",
+    options=all_regions,
+    default=all_regions,
+    key='region'
 )
 
 income = st.sidebar.multiselect(
-    "Select Income Group",
-    options=df['income_group'].unique(),
-    default=df['income_group'].unique()
+    f"Select Income Group  ({len(st.session_state.get('income', all_incomes))} of {len(all_incomes)} selected)",
+    options=all_incomes,
+    default=all_incomes,
+    key='income'
 )
+
 
 # Filter dataframe
 df = df[df['region'].isin(region) & 
