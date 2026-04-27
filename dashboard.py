@@ -5,7 +5,7 @@ import seaborn as sns
 import numpy as np
 import plotly.express as px
 
-df = pd.read_excel("/Users/delphina/Downloads/YEAR 02/DSPL/DSPL 2/DSPL CW 2/cleaned_what_a_waste_data.xlsx")
+df = pd.read_excel("cleaned_what_a_waste_data.xlsx")
 
 st.markdown("""
     <style>
