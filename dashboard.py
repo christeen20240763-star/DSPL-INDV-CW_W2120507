@@ -157,7 +157,7 @@ fig = px.box(df,
              title='Waste per Capita by Income Group',
              labels={'income_group': 'Income Group',
                      'msw_kg_per_capita_per_day': 'Waste (kg/capita/day)'},
-             color_discrete_sequence=['goldenrod', 'darkorange', 'orangered', 'darkgoldenrod'],
+             color_discrete_sequence=['goldenrod', 'darkorange', 'orangered', 'chocolate']),
              category_orders={'income_group': [
                  'low-income country',
                  'lower-middle-income country', 
@@ -204,7 +204,7 @@ fig = px.bar(top10,
                      'country_name': 'Country'},
              color='msw_tonnes_per_year',
              color_continuous_scale='Oranges',
-             range_color=[top10['msw_tonnes_per_year'].min() * 0.5, top10['msw_tonnes_per_year'].max()],
+             range_color=[top10['msw_tonnes_per_year'].min() * 2, top10['msw_tonnes_per_year'].max()],
              text='msw_tonnes_per_year')
 
 fig.update_traces(texttemplate='%{text:.2s}', textposition='outside')
@@ -223,7 +223,7 @@ fig = px.bar(yearly,
                      'msw_tonnes_per_year': 'Total Waste (tonnes)'},
              color='msw_tonnes_per_year',
              color_continuous_scale='Oranges',
-             range_color=[top10['msw_tonnes_per_year'].min() * 0.5, top10['msw_tonnes_per_year'].max()],)
+             range_color=[top10['msw_tonnes_per_year'].min() * 3, top10['msw_tonnes_per_year'].max()],)
 fig.update_xaxes(
     tickmode='array',
     tickvals=yearly['year_reported'].tolist(),
