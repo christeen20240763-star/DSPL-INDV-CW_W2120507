@@ -203,8 +203,7 @@ fig = px.bar(top10,
              labels={'msw_tonnes_per_year': 'Total Waste (tonnes/year)',
                      'country_name': 'Country'},
              color='msw_tonnes_per_year',
-             color_continuous_scale='Oranges',
-             range_color=[top10['msw_tonnes_per_year'].min() * 2, top10['msw_tonnes_per_year'].max()],
+             color_continuous_scale=['gold', 'darkorange', 'orangered', 'saddlebrown'],
              text='msw_tonnes_per_year')
 
 fig.update_traces(texttemplate='%{text:.2s}', textposition='outside')
@@ -222,8 +221,7 @@ fig = px.bar(yearly,
              labels={'year_reported': 'Year', 
                      'msw_tonnes_per_year': 'Total Waste (tonnes)'},
              color='msw_tonnes_per_year',
-             color_continuous_scale='Oranges',
-             range_color=[top10['msw_tonnes_per_year'].min() * 3, top10['msw_tonnes_per_year'].max()],)
+             color_continuous_scale=['gold', 'darkorange', 'orangered', 'saddlebrown'])
 fig.update_xaxes(
     tickmode='array',
     tickvals=yearly['year_reported'].tolist(),
