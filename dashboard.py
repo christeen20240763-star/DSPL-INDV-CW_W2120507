@@ -23,6 +23,9 @@ st.markdown("""
         font-size: 11px !important;
         padding: 2px 6px !important;
     }
+        .plotly .gtitle {
+        font-size: 22px !important;
+    }
     </style>
 """, unsafe_allow_html=True)
 
