@@ -157,7 +157,7 @@ fig = px.box(df,
              title='Waste per Capita by Income Group',
              labels={'income_group': 'Income Group',
                      'msw_kg_per_capita_per_day': 'Waste (kg/capita/day)'},
-             color_discrete_sequence=['peru', 'saddlebrown', 'goldenrod', 'yellow'],
+             color_discrete_sequence=['goldenrod', 'darkorange', 'saddlebrown', 'darkgoldenrod'],
              category_orders={'income_group': [
                  'low-income country',
                  'lower-middle-income country', 
@@ -185,7 +185,7 @@ fig = px.scatter(df,
                 labels={'population': 'Population',
                         'msw_tonnes_per_year': 'Total Waste (tonnes)',
                         'region': 'Region'},
-                color_discrete_sequence=['orangered','darkorange','khaki','chocolate','gold','yellow','palegoldenrod'])
+                color_discrete_sequence=['goldenrod', 'darkorange', 'orangered', 'chocolate', 'darkgoldenrod', 'peru', 'sienna'])
 
 fig.update_layout(legend_itemclick=False, legend_itemdoubleclick=False)
 st.plotly_chart(fig, use_container_width=True)
@@ -203,7 +203,7 @@ fig = px.bar(top10,
              labels={'msw_tonnes_per_year': 'Total Waste (tonnes/year)',
                      'country_name': 'Country'},
              color='msw_tonnes_per_year',
-             color_continuous_scale='YlOrBr',
+             color_continuous_scale='Oranges',
              text='msw_tonnes_per_year')
 
 fig.update_traces(texttemplate='%{text:.2s}', textposition='outside')
@@ -221,7 +221,7 @@ fig = px.bar(yearly,
              labels={'year_reported': 'Year', 
                      'msw_tonnes_per_year': 'Total Waste (tonnes)'},
              color='msw_tonnes_per_year',
-             color_continuous_scale='YlOrBr',)
+             color_continuous_scale='Oranges',)
 fig.update_xaxes(
     tickmode='array',
     tickvals=yearly['year_reported'].tolist(),
