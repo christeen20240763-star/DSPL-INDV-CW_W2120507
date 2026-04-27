@@ -20,7 +20,7 @@ st.markdown("""
         padding-top: 0 !important;
     }
     [data-testid="stMultiSelect"] span {
-        font-size: 11px !important;
+        font-size: 15px !important;
         padding: 2px 6px !important;
     }
         .plotly .gtitle {
@@ -249,9 +249,9 @@ fig = px.bar(yearly_comp,
                      'variable': 'Waste Type'},
              barmode='stack',
              color_discrete_map={
-    'Food': 'gold',
+    'Food': 'saddlebrown',
     'Paper': 'goldenrod',
-    'Plastic': 'saddlebrown'})
+    'Plastic': 'gold'})
 
 fig.update_xaxes(
     tickmode='array',
